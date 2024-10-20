@@ -2,7 +2,19 @@
 //   When the description is invalid, instead, it should use a default description:
 //   "Description not provided".
 fn easy_ticket(title: String, description: String, status: Status) -> Ticket {
-    todo!()
+    match Ticket::new(title.clone(), description, status.clone()) {
+        Ok(ticket) => ticket,
+        Err(err) => {
+            if err.starts_with("Description") {
+                match Ticket::new(title, "Description not provided".into(), status) {
+                    Ok(ticket) => ticket,
+                    Err(err) => panic!("{}", err),
+                }
+            } else {
+                panic!("{}", err)
+            }
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -62,7 +74,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Title cannot be longer than 50 bytes")]
     fn title_cannot_be_longer_than_fifty_chars() {
-        easy_ticket(overly_long_title(), valid_description(), Status::ToDo);
+        easy_ticket(overly_long_title(), "".into(), Status::ToDo);
     }
 
     #[test]
